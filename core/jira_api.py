@@ -5,19 +5,37 @@ from datetime import datetime
 import base64
 
 class JiraAPI:
-    def __init__(self, base_url: str, auth_token: str):
+    def __init__(self, base_url: str, auth_token: str, instance_type: str = 'cloud'):
         self.base_url = base_url.rstrip('/')
+        self.instance_type = instance_type
+        
         # Cloud-specific authentication
-        email = settings.JIRA_CLOUD_EMAIL
-        encoded_auth = base64.b64encode(f"{email}:{auth_token}".encode()).decode()
-        self.headers = {
-            'Authorization': f'Basic {encoded_auth}',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        }
+        if instance_type == 'cloud':
+            email = settings.JIRA_CLOUD_EMAIL
+            encoded_auth = base64.b64encode(f"{email}:{auth_token}".encode()).decode()
+            self.headers = {
+                'Authorization': f'Basic {encoded_auth}',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        else:
+            # Server/Data Center authentication
+            self.headers = {
+                'Authorization': f'Bearer {auth_token}',
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+
+    def _get_api_version(self):
+        """Return the appropriate API version based on instance type"""
+        return 'rest/api/3' if self.instance_type == 'cloud' else 'rest/api/2'
 
     def _make_request(self, method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
         """Make authenticated request to Jira API with detailed logging."""
+        # Ensure endpoint starts with the correct API version
+        if not endpoint.startswith('/rest/api/'):
+            endpoint = f'/{self._get_api_version()}{endpoint}'
+            
         url = f"{self.base_url.rstrip('/')}{endpoint}"
         
         print(f"Making {method} request to: {url}")

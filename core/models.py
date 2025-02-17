@@ -6,10 +6,21 @@ from . import jira_api
 from django.conf import settings
 
 class JiraInstance(models.Model):
+    INSTANCE_TYPES = [
+        ('cloud', 'Jira Cloud'),
+        ('server', 'Jira Server/Data Center')
+    ]
+    
     name = models.CharField(max_length=255)
     base_url = models.URLField()
     username = models.EmailField(null=True, blank=True)
     api_token = models.CharField(max_length=255, null=True, blank=True)
+    instance_type = models.CharField(
+        max_length=10,
+        choices=INSTANCE_TYPES,
+        default='cloud',
+        help_text='Select whether this is a Cloud or Server/Data Center instance'
+    )
     last_sync = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -10,7 +10,12 @@ class ProjectForm(forms.ModelForm):
 class JiraInstanceForm(forms.ModelForm):
     class Meta:
         model = models.JiraInstance
-        fields = ['name', 'base_url', 'username', 'api_token'] 
+        fields = ['name', 'base_url', 'username', 'api_token', 'instance_type']
+        widgets = {
+            'instance_type': forms.Select(attrs={
+                'class': 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
+            })
+        }
 
 class ApplicationSettingsForm(forms.ModelForm):
     class Meta:

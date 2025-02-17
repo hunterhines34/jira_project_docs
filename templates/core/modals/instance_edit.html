@@ -68,6 +68,16 @@
                                 Only fill this if you want to change the current API token
                             </p>
                         </div>
+
+                        <div>
+                            <label for="instance_type" class="block text-sm font-medium text-gray-700">Instance Type</label>
+                            <select name="instance_type" 
+                                    id="instance_type" 
+                                    class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                <option value="cloud" {% if instance.instance_type == 'cloud' %}selected{% endif %}>Jira Cloud</option>
+                                <option value="server" {% if instance.instance_type == 'server' %}selected{% endif %}>Jira Server/Data Center</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
