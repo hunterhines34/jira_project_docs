@@ -1,0 +1,48 @@
+<div class="space-y-6">
+    <!-- Versions -->
+    <div>
+        <h3 class="text-lg leading-6 font-medium text-gray-900">Project Versions</h3>
+        <div class="mt-5 border-t border-gray-200">
+            <div class="bg-white shadow overflow-hidden sm:rounded-md">
+                <ul class="divide-y divide-gray-200">
+                    {% for version in project.configuration_snapshot.versions %}
+                        <li class="px-4 py-4 sm:px-6">
+                            <div class="flex items-center justify-between">
+                                <div class="text-sm font-medium text-blue-600">{{ version.name }}</div>
+                                <div class="flex space-x-2">
+                                    {% if version.released %}
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                            Released
+                                        </span>
+                                    {% endif %}
+                                    {% if version.archived %}
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                            Archived
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500">{{ version.description|default:"No description" }}</p>
+                            </div>
+                            {% if version.releaseDate or version.startDate %}
+                                <div class="mt-2 flex space-x-4">
+                                    {% if version.startDate %}
+                                        <span class="text-xs text-gray-500">Start: {{ version.startDate }}</span>
+                                    {% endif %}
+                                    {% if version.releaseDate %}
+                                        <span class="text-xs text-gray-500">Release: {{ version.releaseDate }}</span>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </li>
+                    {% empty %}
+                        <li class="px-4 py-5 sm:px-6">
+                            <div class="text-center text-gray-500">No versions defined</div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div> 

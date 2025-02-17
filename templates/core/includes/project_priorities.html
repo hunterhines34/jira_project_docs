@@ -1,0 +1,61 @@
+<div class="space-y-6">
+    <!-- Priority Schemes -->
+    <div>
+        <h3 class="text-lg leading-6 font-medium text-gray-900">Priority Scheme</h3>
+        <div class="mt-5 border-t border-gray-200">
+            <div class="bg-white shadow overflow-hidden sm:rounded-md">
+                {% with scheme=project.configuration_snapshot.priority_scheme %}
+                    {% if scheme %}
+                        <div class="px-4 py-4 sm:px-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-sm font-medium text-blue-600">{{ scheme.name }}</div>
+                                    {% if scheme.isDefault %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mt-1">
+                                            Default Scheme
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                <span class="text-xs text-gray-500">ID: {{ scheme.id }}</span>
+                            </div>
+                            
+                            {% if scheme.description %}
+                                <div class="mt-2">
+                                    <p class="text-sm text-gray-500">{{ scheme.description }}</p>
+                                </div>
+                            {% endif %}
+                            
+                            {% if scheme.priorities %}
+                                <div class="mt-4 border-t border-gray-200 pt-4">
+                                    <h4 class="text-sm font-medium text-gray-900 mb-2">Priorities</h4>
+                                    <ul class="space-y-3">
+                                        {% for priority in scheme.priorities %}
+                                            <li class="flex items-center space-x-3">
+                                                {% if priority.iconUrl %}
+                                                    <img src="{{ priority.iconUrl }}" alt="{{ priority.name }}" class="h-4 w-4">
+                                                {% endif %}
+                                                <span class="text-sm font-medium text-gray-900">{{ priority.name }}</span>
+                                                {% if priority.description %}
+                                                    <span class="text-sm text-gray-500">{{ priority.description }}</span>
+                                                {% endif %}
+                                                {% if scheme.defaultPriorityId == priority.id %}
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                        Default
+                                                    </span>
+                                                {% endif %}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="px-4 py-5 sm:px-6">
+                            <div class="text-center text-gray-500">No priority scheme configured</div>
+                        </div>
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+</div> 

@@ -1,0 +1,46 @@
+<div class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full">
+    <form hx-post="{% url 'core:project-create' %}" hx-target="#projects-list" class="block">
+        {% csrf_token %}
+        <div class="px-4 pt-5 pb-4 sm:p-6">
+            <div class="sm:flex sm:items-start">
+                <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Add New Project</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="jira_instance" class="block text-sm font-medium text-gray-700">Jira Instance</label>
+                            <select name="jira_instance" id="jira_instance" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                                {% for instance in jira_instances %}
+                                    <option value="{{ instance.id }}">{{ instance.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="project_id" class="block text-sm font-medium text-gray-700">Project ID</label>
+                            <input type="text" name="project_id" id="project_id" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                        </div>
+
+                        <div>
+                            <label for="key" class="block text-sm font-medium text-gray-700">Project Key</label>
+                            <input type="text" name="key" id="key" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                        </div>
+
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700">Project Name</label>
+                            <input type="text" name="name" id="name" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                Add Project
+            </button>
+            <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" onclick="document.getElementById('modal').classList.add('hidden')">
+                Cancel
+            </button>
+        </div>
+    </form>
+</div> 

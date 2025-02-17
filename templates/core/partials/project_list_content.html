@@ -1,0 +1,62 @@
+{% regroup projects by jira_instance as instance_projects %}
+{% for instance in instance_projects %}
+    <div class="bg-white rounded-lg shadow mb-6">
+        <!-- Instance Header -->
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <h2 class="text-lg font-semibold text-gray-900">{{ instance.grouper.name }}</h2>
+                    <span class="ml-3 px-2.5 py-0.5 text-xs font-medium rounded-full bg-indigo-100 text-indigo-800">
+                        {{ instance.list|length }} projects
+                    </span>
+                </div>
+                <button 
+                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md"
+                    hx-post="{% url 'api:instance-sync' instance.grouper.id %}"
+                    hx-swap="none"
+                >
+                    <svg id="sync-spinner-{{ instance.grouper.id }}" 
+                         class="animate-spin -ml-1 mr-2 h-4 w-4 text-white htmx-indicator" 
+                         xmlns="http://www.w3.org/2000/svg" 
+                         fill="none" 
+                         viewBox="0 0 24 24"
+                    >
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Sync
+                </button>
+            </div>
+        </div>
+
+        <!-- Projects List -->
+        <div class="divide-y divide-gray-200">
+            {% for project in instance.list %}
+                <a href="{% url 'core:project-detail' project.id %}" 
+                   class="block hover:bg-gray-50 transition duration-150"
+                >
+                    <div class="px-6 py-4 flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                <span class="text-lg font-bold text-indigo-700">{{ project.key|slice:":2" }}</span>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-medium text-indigo-600">
+                                    {{ project.key }} - {{ project.name }}
+                                </h3>
+                            </div>
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            Last synced: {{ project.last_sync|timesince }} ago
+                        </div>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+{% empty %}
+    <div class="text-center py-12 bg-white rounded-lg shadow">
+        <h3 class="text-lg font-medium text-gray-900">No projects found</h3>
+        <p class="mt-2 text-sm text-gray-500">Try adjusting your search terms.</p>
+    </div>
+{% endfor %} 

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ project.name }} ({{ project.key }}) - Documentation</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        h1, h2, h3 { color: #172B4D; }
+        .metadata { color: #5E6C84; }
+        .scheme, .workflow, .field, .component {
+            border: 1px solid #DFE1E6;
+            border-radius: 4px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .tag {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.875rem;
+            background: #DEEBFF;
+            color: #0747A6;
+        }
+        .status-tag {
+            background: #00875A;
+            color: white;
+        }
+        .custom-field {
+            background: #FFE380;
+            color: #172B4D;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        th, td {
+            text-align: left;
+            padding: 0.5rem;
+            border: 1px solid #DFE1E6;
+        }
+        th {
+            background: #F4F5F7;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ project.name }} ({{ project.key }})</h1>
+    
+    <div class="metadata">
+        <p><strong>Instance:</strong> {{ project.jira_instance.name }}</p>
+        <p><strong>Last Sync:</strong> {{ project.last_sync|date:"F j, Y, P" }}</p>
+        <p><strong>Description:</strong> {{ project.configuration_snapshot.project.description|default:"No description" }}</p>
+        <p><strong>Project Lead:</strong> {{ project.configuration_snapshot.project.lead.displayName|default:"Not specified" }}</p>
+    </div>
+
+    {% if 'issue_types' in sections %}
+    <h2>Issue Types and Schemes</h2>
+    
+    <h3>Issue Types</h3>
+    <div class="scheme">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Type</th>
+                    <th>Subtask</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for type in project.configuration_snapshot.issue_types %}
+                <tr>
+                    <td>{{ type.name }}</td>
+                    <td>{{ type.description|default:"No description" }}</td>
+                    <td><span class="tag">{{ type.type }}</span></td>
+                    <td>{{ type.subtask|yesno:"Yes,No" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h3>Issue Type Schemes</h3>
+    {% for scheme in project.configuration_snapshot.issue_type_scheme %}
+    <div class="scheme">
+        <h4>{{ scheme.name }}</h4>
+        <p>{{ scheme.description|default:"No description" }}</p>
+        <p><strong>Default Issue Type:</strong> {{ scheme.defaultIssueType.name|default:"None" }}</p>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if 'screens' in sections %}
+    <h2>Screens and Field Configuration</h2>
+    
+    <h3>Screens</h3>
+    {% for screen in project.configuration_snapshot.screens %}
+    <div class="scheme">
+        <h4>{{ screen.name }}</h4>
+        <p>{{ screen.description|default:"No description" }}</p>
+        {% for tab in screen.tabs %}
+        <div class="workflow">
+            <h5>{{ tab.name }}</h5>
+            <ul>
+                {% for field in tab.fields %}
+                <li>{{ field.name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+
+    <h3>Field Configuration Schemes</h3>
+    {% for scheme in project.configuration_snapshot.field_configuration_scheme %}
+    <div class="scheme">
+        <h4>{{ scheme.name }}</h4>
+        <p>{{ scheme.description|default:"No description" }}</p>
+        {% for config in scheme.configurations %}
+        <div class="workflow">
+            <h5>{{ config.name }}</h5>
+            <ul>
+                {% for field in config.fields %}
+                <li><strong>{{ field.fieldId }}:</strong> {{ field.description|default:"No description" }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if 'workflows' in sections %}
+    <h2>Workflows</h2>
+    
+    <h3>Workflow Schemes</h3>
+    {% for scheme in project.configuration_snapshot.workflow_scheme %}
+    <div class="scheme">
+        <h4>{{ scheme.name }}</h4>
+        <p>{{ scheme.description|default:"No description" }}</p>
+        <p><strong>Default Workflow:</strong> <span class="tag">{{ scheme.defaultWorkflow }}</span></p>
+        {% if scheme.issueTypeMappings %}
+        <h5>Issue Type Mappings</h5>
+        <table>
+            <thead>
+                <tr>
+                    <th>Issue Type</th>
+                    <th>Workflow</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for type, workflow in scheme.issueTypeMappings.items %}
+                <tr>
+                    <td>{{ type }}</td>
+                    <td>{{ workflow }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <h3>Individual Workflows</h3>
+    {% for workflow in project.configuration_snapshot.workflows %}
+    <div class="workflow">
+        <h4>{{ workflow.name }}</h4>
+        <p>{{ workflow.description|default:"No description" }}</p>
+        <p><span class="tag">{{ workflow.steps|length }} steps</span></p>
+        {% if workflow.statuses %}
+        <h5>Statuses</h5>
+        <div class="status-list">
+            {% for status in workflow.statuses %}
+            <span class="tag status-tag">{{ status.name }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if 'security' in sections %}
+    <h2>Security</h2>
+    
+    <h3>Permission Schemes</h3>
+    <div class="scheme">
+        <table>
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Permission</th>
+                    <th>Granted To</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for permission in project.configuration_snapshot.permission_scheme.permissions %}
+                <tr>
+                    <td>{{ permission.holder.type }}</td>
+                    <td>{{ permission.permission.name }}</td>
+                    <td>{{ permission.holder.parameter|default:"" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if project.configuration_snapshot.security_scheme %}
+    <h3>Security Scheme</h3>
+    <div class="scheme">
+        <h4>{{ project.configuration_snapshot.security_scheme.name }}</h4>
+        <p>{{ project.configuration_snapshot.security_scheme.description|default:"No description" }}</p>
+        {% for level in project.configuration_snapshot.security_scheme.levels %}
+        <div class="workflow">
+            <h5>{{ level.name }}</h5>
+            <p>{{ level.description|default:"No description" }}</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endif %}
+
+    {% if 'fields' in sections %}
+    <h2>Fields</h2>
+    
+    <h3>Custom Fields</h3>
+    <div class="field-list">
+        {% for field in project.configuration_snapshot.fields %}
+        {% if field.custom %}
+        <div class="field">
+            <h4>{{ field.name }} <span class="tag custom-field">Custom</span></h4>
+            <p><strong>ID:</strong> {{ field.id }}</p>
+            <p><strong>Type:</strong> {{ field.type }}</p>
+            <p>{{ field.description|default:"No description" }}</p>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+
+    <h3>Standard Fields</h3>
+    <div class="field-list">
+        {% for field in project.configuration_snapshot.fields %}
+        {% if not field.custom %}
+        <div class="field">
+            <h4>{{ field.name }}</h4>
+            <p><strong>ID:</strong> {{ field.id }}</p>
+            <p><strong>Type:</strong> {{ field.type }}</p>
+            <p>{{ field.description|default:"No description" }}</p>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <h2>Additional Components</h2>
+    
+    {% if project.configuration_snapshot.components %}
+    <h3>Components</h3>
+    {% for component in project.configuration_snapshot.components %}
+    <div class="component">
+        <h4>{{ component.name }}</h4>
+        <p>{{ component.description|default:"No description" }}</p>
+        <p><strong>Lead:</strong> {{ component.lead.displayName|default:"No lead assigned" }}</p>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if project.configuration_snapshot.versions %}
+    <h3>Versions</h3>
+    {% for version in project.configuration_snapshot.versions %}
+    <div class="component">
+        <h4>{{ version.name }}</h4>
+        <p>{{ version.description|default:"No description" }}</p>
+        <p><span class="tag">{{ version.released|yesno:"Released,Unreleased" }}</span></p>
+        {% if version.releaseDate %}
+        <p><strong>Release Date:</strong> {{ version.releaseDate }}</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if project.configuration_snapshot.priority_scheme %}
+    <h3>Priority Scheme</h3>
+    <div class="scheme">
+        <h4>{{ project.configuration_snapshot.priority_scheme.name }}</h4>
+        <p>{{ project.configuration_snapshot.priority_scheme.description|default:"No description" }}</p>
+        <div class="priority-list">
+            {% for priority in project.configuration_snapshot.priority_scheme.priorities %}
+            <div class="workflow">
+                <h5>{{ priority.name }}</h5>
+                <p>{{ priority.description|default:"No description" }}</p>
+                {% if priority.iconUrl %}
+                <img src="{{ priority.iconUrl }}" alt="{{ priority.name }} icon" style="height: 16px; width: 16px;">
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</body>
+</html> 

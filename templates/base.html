@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% csrf_token %}
+    <title>Jira Documentation Generator - {% block title %}Jira Documentation Generator{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            htmx.on('htmx:configRequest', (event) => {
+                event.detail.headers['X-CSRFToken'] = csrfToken;
+            });
+
+            // Add modal handling
+            htmx.on('htmx:afterSwap', (e) => {
+                if (e.detail.target.id === 'modal') {
+                    e.detail.target.classList.remove('hidden');
+                }
+            });
+        });
+    </script>
+</head>
+<body class="min-h-screen bg-gray-100">
+    <!-- Sidebar -->
+    <div class="fixed inset-y-0 left-0 w-64 bg-gray-900">
+        <div class="flex items-center justify-center h-16 bg-gray-800">
+            <a href="{% url 'core:dashboard' %}" class="text-white text-lg">Jira Documentation Generator</a>
+        </div>
+        {% if user.is_authenticated %}
+        <nav class="mt-5 px-2">
+            <a href="{% url 'core:dashboard' %}" class="group flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-300 hover:bg-gray-700 hover:text-white">
+                <svg class="mr-4 h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                </svg>
+                Dashboard
+            </a>
+            <a href="{% url 'core:instances' %}" class="group flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-300 hover:bg-gray-700 hover:text-white">
+                <svg class="mr-4 h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/>
+                </svg>
+                Instances
+            </a>
+            <a href="{% url 'core:projects' %}" class="group flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-300 hover:bg-gray-700 hover:text-white">
+                <svg class="mr-4 h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                </svg>
+                Projects
+            </a>
+            <a href="{% url 'core:reports' %}" class="mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-300 hover:bg-gray-700 hover:text-white">
+                <svg class="mr-4 h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Reports
+            </a>
+            <a href="{% url 'core:settings' %}" class="mt-1 group flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-300 hover:bg-gray-700 hover:text-white">
+                <svg class="mr-4 h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                Settings
+            </a>
+        </nav>
+        {% endif %}
+    </div>
+
+    <!-- Main Content -->
+    <div class="pl-64 min-h-screen">
+        <!-- Top Navigation -->
+        <div class="bg-white shadow">
+            <div class="px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-end h-16">
+                    {% if user.is_authenticated %}
+                    <div class="ml-4 flex items-center md:ml-6">
+                        <!-- Profile dropdown -->
+                        <div class="relative">
+                            <button 
+                                class="flex items-center max-w-xs text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" 
+                                hx-get="{% url 'core:toggle-dropdown' %}"
+                                hx-target="#dropdown-menu"
+                                hx-swap="outerHTML"
+                            >
+                                <span class="sr-only">Open user menu</span>
+                                <div class="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center">
+                                    <svg class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                </div>
+                            </button>
+
+                            <!-- Dropdown menu -->
+                            <div 
+                                id="dropdown-menu" 
+                                class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 focus:outline-none"
+                            >
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <main class="py-6">
+            <div class="mx-auto px-4 sm:px-6 lg:px-8">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Add this right before the closing </body> tag -->
+    <div id="toast" class="fixed top-4 right-4 max-w-xs bg-white border rounded-lg shadow-lg transform transition-all duration-500 opacity-0 translate-y-[-1rem]">
+    </div>
+
+    <div id="toast-container" 
+         class="fixed top-4 right-4 z-50"
+         hx-trigger="showMessage from:body"
+         hx-swap="beforeend">
+    </div>
+
+    <script>
+        // Modal handling
+        document.addEventListener('DOMContentLoaded', () => {
+            htmx.on('htmx:afterSwap', (e) => {
+                if (e.detail.target.id === 'modal') {
+                    e.detail.target.classList.remove('hidden');
+                }
+            });
+        });
+
+        // Close modal when clicking outside
+        document.addEventListener('click', (e) => {
+            const modal = document.getElementById('modal');
+            if (e.target === modal) {
+                modal.classList.add('hidden');
+            }
+        });
+
+        htmx.on("showMessage", (e) => {
+            const toast = document.getElementById('toast');
+            const message = e.detail.message;
+            const type = e.detail.type;
+            
+            // Set toast color based on type
+            const bgColor = type === 'success' ? 'bg-green-50' : 'bg-red-50';
+            const textColor = type === 'success' ? 'text-green-800' : 'text-red-800';
+            const iconColor = type === 'success' ? 'text-green-400' : 'text-red-400';
+            
+            toast.innerHTML = `
+                <div class="p-4 ${bgColor}">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            ${type === 'success' 
+                                ? `<svg class="h-5 w-5 ${iconColor}" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                   </svg>`
+                                : `<svg class="h-5 w-5 ${iconColor}" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                   </svg>`
+                            }
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium ${textColor}">${message}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Show toast
+            toast.classList.remove('opacity-0', 'translate-y-[-1rem]');
+            
+            // Hide toast after 5 seconds (increased from 3)
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-[-1rem]');
+            }, 5000);  // Changed to 5000ms (5 seconds)
+        });
+
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('dropdown-menu');
+            const button = event.target.closest('button');
+            
+            // If we clicked outside the dropdown and not on the button
+            if (!event.target.closest('#dropdown-menu') && !button) {
+                if (dropdown && !dropdown.classList.contains('hidden')) {
+                    dropdown.classList.add('hidden');
+                }
+            }
+        });
+
+        document.body.addEventListener('showMessage', function(evt) {
+            const data = evt.detail;
+            const toast = document.createElement('div');
+            
+            // Set the toast content and styling
+            toast.className = `${data.type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white px-6 py-4 rounded-lg shadow-lg mb-4 flex items-center`;
+            toast.innerHTML = `
+                <div class="flex-grow">${data.message}</div>
+                <button onclick="this.parentElement.remove()" class="ml-4 focus:outline-none">
+                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                </button>
+            `;
+
+            // Add the toast to the container
+            document.getElementById('toast-container').appendChild(toast);
+
+            // Remove the toast after 5 seconds (increased from 3)
+            setTimeout(() => {
+                if (toast.parentElement) {  // Check if toast still exists
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateY(-1rem)';
+                    setTimeout(() => toast.remove(), 300);  // Remove after fade out
+                }
+            }, 5000);  // Changed to 5000ms (5 seconds)
+        });
+    </script>
+</body>
+</html> 

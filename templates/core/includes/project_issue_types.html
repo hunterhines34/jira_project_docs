@@ -1,0 +1,64 @@
+<div class="space-y-6">
+    <!-- Issue Types -->
+    <div>
+        <h3 class="text-lg leading-6 font-medium text-gray-900">Issue Types</h3>
+        <div class="mt-5 border-t border-gray-200">
+            <div class="bg-white shadow overflow-hidden sm:rounded-md">
+                <ul class="divide-y divide-gray-200">
+                    {% for type in project.configuration_snapshot.issue_types %}
+                        <li class="px-4 py-4 sm:px-6">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    {% if type.iconUrl %}
+                                        <img src="{{ type.iconUrl }}" alt="{{ type.name }}" class="h-5 w-5 mr-2">
+                                    {% endif %}
+                                    <div class="text-sm font-medium text-blue-600">{{ type.name }}</div>
+                                </div>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium 
+                                    {% if type.subtask %}bg-purple-100 text-purple-800{% else %}bg-green-100 text-green-800{% endif %}">
+                                    {{ type.type }}
+                                </span>
+                            </div>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500">{{ type.description|default:"No description" }}</p>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Issue Type Schemes -->
+    <div>
+        <h3 class="text-lg leading-6 font-medium text-gray-900">Issue Type Schemes</h3>
+        <div class="mt-5 border-t border-gray-200">
+            <div class="bg-white shadow overflow-hidden sm:rounded-md">
+                <ul class="divide-y divide-gray-200">
+                    {% for scheme_data in project.configuration_snapshot.issue_type_scheme.schemes %}
+                        <li class="px-4 py-4 sm:px-6">
+                            <div class="flex items-center justify-between">
+                                {% with scheme=scheme_data.issueTypeScheme %}
+                                    <div class="text-sm font-medium text-blue-600">{{ scheme.name }}</div>
+                                    <span class="text-xs text-gray-500">ID: {{ scheme.id }}</span>
+                                {% endwith %}
+                            </div>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500">{{ scheme_data.issueTypeScheme.description|default:"No description" }}</p>
+                            </div>
+                            {% if scheme_data.issueTypeScheme.issueTypes %}
+                                <div class="mt-4 flex flex-wrap gap-2">
+                                    {% for type in scheme_data.issueTypeScheme.issueTypes.values %}
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                            {{ type.name }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div> 

@@ -1,0 +1,38 @@
+/* Custom Utility Classes */
+.modal-open {
+    overflow: hidden;
+}
+
+/* Custom Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-10%); }
+    to { transform: translateY(0); }
+}
+
+/* Modal Animations */
+.modal-enter {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content-enter {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* Custom Components */
+.htmx-indicator {
+    opacity: 0;
+    transition: opacity 200ms ease-in;
+}
+
+.htmx-request .htmx-indicator {
+    opacity: 1;
+}
+
+.htmx-request.htmx-indicator {
+    opacity: 1;
+} 

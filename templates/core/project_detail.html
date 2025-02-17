@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ project.key }} - {{ project.name }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg mx-2">
+    <!-- Project Header -->
+    <div class="px-8 py-5 flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">
+                {{ project.key }} - {{ project.name }}
+            </h1>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                {{ project.jira_instance.name }}
+            </p>
+        </div>
+        <div class="flex space-x-4">
+            <button 
+                class="bg-white hover:bg-gray-50 text-gray-700 font-bold py-2 px-4 rounded inline-flex items-center border border-gray-300 shadow-sm"
+                hx-get="{% url 'core:project-edit' project.id %}"
+                hx-target="#modal"
+            >
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                Edit Project
+            </button>
+            <button 
+                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center transition-all duration-200"
+                hx-post="{% url 'core:project-sync' project.id %}"
+                hx-swap="none"
+                hx-indicator="#sync-indicator"
+                hx-trigger="click"
+                hx-on::after-request="htmx.trigger('#tab-content', 'refreshContent')"
+            >
+                <!-- Regular icon -->
+                <svg 
+                    class="h-5 w-5 mr-2 transition-opacity duration-200" 
+                    id="sync-icon" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                    style="opacity: 1;"
+                >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                
+                <!-- Loading spinner -->
+                <svg 
+                    class="htmx-indicator h-5 w-5 mr-2 animate-spin transition-opacity duration-200" 
+                    id="sync-indicator" 
+                    fill="none" 
+                    viewBox="0 0 24 24"
+                >
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                
+                <span>Sync Now</span>
+            </button>
+            <button 
+                class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center"
+                hx-get="{% url 'core:project-export' project.id %}"
+                hx-target="#modal"
+                hx-trigger="click"
+            >
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Export
+            </button>
+            <a 
+                href="/api/projects/{{ project.id }}/"
+                class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded flex items-center"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+                </svg>
+                View API
+            </a>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="border-b border-gray-200">
+        <nav class="-mb-px flex space-x-8 px-8" aria-label="Tabs">
+            <button 
+                class="tab-link border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                hx-get="{% url 'core:project-overview' project.id %}"
+                hx-target="#tab-content"
+                hx-trigger="click"
+            >
+                Overview
+            </button>
+            <button 
+                class="tab-link border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                hx-get="{% url 'core:project-components' project.id %}"
+                hx-target="#tab-content"
+                hx-trigger="click"
+            >
+                Components
+            </button>
+            <button 
+                class="tab-link border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                hx-get="{% url 'core:project-versions' project.id %}"
+                hx-target="#tab-content"
+                hx-trigger="click"
+            >
+                Versions
+            </button>
+            <button 
+                class="tab-link border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                hx-get="{% url 'core:project-issue-types' project.id %}"
+                hx-target="#tab-content"
+                hx-trigger="click"
+            >
+                Issue Types
+            </button>
+            <button 
+                class="tab-link border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                hx-get="{% url 'core:project-screens' project.id %}"
+                hx-target="#tab-content"
+                hx-trigger="click"
+            >
+                Screens
+            </button>
+            <button 
+                class="tab-link border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                hx-get="{% url 'core:project-priorities' project.id %}"
+                hx-target="#tab-content"
+                hx-trigger="click"
+            >
+                Priorities
+            </button>
+            <button 
+                class="tab-link border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                hx-get="{% url 'core:project-roles' project.id %}"
+                hx-target="#tab-content"
+                hx-trigger="click"
+            >
+                Project Roles
+            </button>
+            <button 
+                class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm"
+                hx-get="{% url 'core:project-workflows' project.id %}"
+                hx-target="#tab-content"
+                hx-trigger="click"
+            >
+                Workflows
+            </button>
+            <button 
+                class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm"
+                hx-get="{% url 'core:project-security' project.id %}"
+                hx-target="#tab-content"
+                hx-trigger="click"
+            >
+                Security
+            </button>
+            <button 
+                class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm"
+                hx-get="{% url 'core:project-fields' project.id %}"
+                hx-target="#tab-content"
+                hx-trigger="click"
+            >
+                Fields
+            </button>
+        </nav>
+    </div>
+
+    <!-- Tab Content -->
+    <div id="tab-content" class="px-8 py-6">
+        <div id="overview" class="tab-panel">
+            {% include "core/includes/project_overview.html" %}
+        </div>
+        <div id="issue-types" class="tab-panel hidden">
+            {% include "core/includes/project_issue_types.html" %}
+        </div>
+        <div id="screens" class="tab-panel hidden">
+            {% include "core/includes/project_screens.html" %}
+        </div>
+        <div id="priorities" class="tab-panel hidden">
+            {% include "core/includes/project_priorities.html" %}
+        </div>
+        <div id="roles" class="tab-panel hidden">
+            {% include "core/includes/project_roles.html" %}
+        </div>
+        <!-- ... other existing tab panels ... -->
+    </div>
+</div>
+
+<!-- Modal Container -->
+<div id="modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
+    <!-- Modal content will be loaded here -->
+</div>
+
+<!-- Find your recent activities section and add these attributes -->
+<div 
+    id="recent-activities"
+    hx-get="{% url 'core:project-activities' project.id %}"
+    hx-trigger="refreshActivities from:body"
+    hx-swap="innerHTML"
+>
+    <!-- Your existing activities content -->
+</div>
+{% endblock %} 
